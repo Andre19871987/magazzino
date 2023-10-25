@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Prodotti-Magazzino</title>
+  <style>
+    body {
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .user-bar {
+      background: #0074D9;
+      color: #fff;
+      padding: 10px;
+      text-align: right;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #ccc;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+    }
+
+ 
+  </style>
+</head>
+
+<body>
+  <div class="user-bar">
+    <span id="username"></span>
+  </div>
+  <div class="container">
+    <table>
+      <thead>
+        <tr>
+          <h1>PRODOTTI </h1>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Quantità</th>
+          <th>gestisci</th>
+        </tr>
+      </thead>
+      <tbody id="product-table">
+
+      </tbody>
+    </table>
+  </div>
+  <script>
+
+    function getUserData() {
+      return fetch('/api/user')
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            throw new Error('Utente non autenticato');
+          }
+        });
+    }
+
+
+    function updateUserInfo() {
+      getUserData()
+        .then((user) => {
+          document.getElementById('username').innerText = `Utente: ${user.name}`;
+        })
+        .catch((error) => {
+          console.error(error);
+
+          window.location.href = '/login.html';
+        });
+    }
+
+
+    function displayProducts() {
+      fetch('/api/products')
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            throw new Error('Errore nel recupero dei prodotti');
+          }
+        })
+        .then((products) => {
+          console.log(products);
+          const productTable = document.getElementById('product-table');
+          products.forEach((product) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+            <td>${product.id}</td>
+            <td>${product.name}</td>
+            <td>${product.quantity}</td>
+            <td>
+              <form>
+                <input type="number" id="quantity-${product.id}" min="0" max="100" value="${product.quantity}">
+                <button onclick="updateQuantity(${product.id})">Conferma</button>
+              </form>
+            </td>
+          `;
+            productTable.appendChild(row);
+          });
+        })
+        .catch((error) => {
+          console.error(error);
+
+        });
+    }
+
+
+    function updateQuantity(productId) {
+      const newQuantity = parseInt(document.getElementById(`quantity-${productId}`).value);
+
+      fetch(`/api/products/${productId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quantity: newQuantity }),
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            alert('Quantità aggiornata con successo.');
+          } else {
+            alert('Errore durante l\'aggiornamento della quantità.');
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+
+
+    updateUserInfo();
+    displayProducts();
+  </script>
+
+
+
+</body>
+
+</html>

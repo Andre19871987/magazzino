@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            background-color: #509ad6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .group {
+            margin: 10px 0;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+        }
+
+        input {
+            width: 93%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin-top: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background: #509ad6;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Login</h1>
+    <form id="sample-form" method="post" action="http://localhost:3000/api/login">
+        <div class="contenitore">
+            <label for="username"><b>Nome</b></label>
+            <input type="text" id="username" placeholder="Nome utente" name="nome_utente" required>
+
+            <label for="password"><b>Password</b></label>
+            <input type="password" id="password" placeholder="Password" name="password" required>
+
+            <button type="submit">Accedi</button>
+        </div>
+    </form>
+    <script>
+
+
+        document.getElementById("sample-form").addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name: username,
+                        password: password
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+
+                });
+                console.log(response)
+                if (response.status === 200) {
+                    const data = await response.json();
+
+                    if (data.message === 'Login riuscito') {
+
+                        window.location.href = 'http://localhost:3000/products.html';
+                        console.log('Login effettuato con successo.');
+                    } else {
+                        console.error('Errore nella risposta del server:', response.status);
+                    }
+
+                } else {
+                    console.error('Errore nella risposta del server:', response.status);
+                }
+            } catch (error) {
+                console.error('Errore nella richiesta fetch:', error);
+            }
+        });
+
+    </script>
+</body>
+
+</html>
